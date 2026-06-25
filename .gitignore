@@ -1,0 +1,23 @@
+# Java / Spring Boot
+**/target/
+*.class
+*.jar
+*.war
+.idea/
+*.iml
+**/.env
+
+
+# React / Node
+**/node_modules/
+**/dist/
+**/build/
+
+# Secrets
+.env
+*.env
+application-local.properties
+application-dev.properties
+
+# Mac
+.DS_Store
