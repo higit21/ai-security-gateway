@@ -30,6 +30,14 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
     ports:
       - "8080:8080"
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ai-security-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   postgres_data:
