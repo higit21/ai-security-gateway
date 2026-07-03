@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy AI Security Gateway
 
 on:
   push:
@@ -21,3 +21,4 @@ jobs:
             git pull origin main
             docker compose down
             docker compose up --build -d
+            docker ps
