@@ -24,7 +24,7 @@ public class AIService {
 
         GenerateContentResponse response =
                 client.models.generateContent(
-                        "gemini-2.5-flash",
+                        "gemini-3.1-flash-lite",
                         prompt,
                         null
                 );

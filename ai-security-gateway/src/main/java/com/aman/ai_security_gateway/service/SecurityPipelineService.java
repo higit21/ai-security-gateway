@@ -1,44 +1,58 @@
 package com.aman.ai_security_gateway.service;
 
 import com.aman.ai_security_gateway.dto.PipelineResponse;
+import com.aman.ai_security_gateway.security.RuleAction;
+import com.aman.ai_security_gateway.security.RuleMatch;
 import com.aman.ai_security_gateway.security.SecurityThreat;
 import com.aman.ai_security_gateway.security.ThreatAssessment;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Service
 public class SecurityPipelineService {
 
-    private final SecurityScannerService scannerService;
     private final RiskAssessmentService riskAssessmentService;
-    private final RedactionService redactionService;
     private final AIRouterService aiRouterService;
     private final AuditService auditService;
+    private final DynamicRuleScannerService dynamicRuleScannerService;
 
     public SecurityPipelineService(
-            SecurityScannerService scannerService,
             RiskAssessmentService riskAssessmentService,
-            RedactionService redactionService,
             AIRouterService aiRouterService,
-            AuditService auditService
+            AuditService auditService,
+            DynamicRuleScannerService dynamicRuleScannerService
     ) {
-        this.scannerService = scannerService;
         this.riskAssessmentService = riskAssessmentService;
-        this.redactionService = redactionService;
         this.aiRouterService = aiRouterService;
         this.auditService = auditService;
+        this.dynamicRuleScannerService =
+                dynamicRuleScannerService;
     }
 
     public PipelineResponse process(String prompt) {
 
+        List<RuleMatch> matches =
+                dynamicRuleScannerService.scan(prompt);
+
         List<SecurityThreat> threats =
-                scannerService.scan(prompt);
+                matches.stream()
+                        .map(RuleMatch::threat)
+                        .toList();
 
         ThreatAssessment assessment =
                 riskAssessmentService.assess(threats);
 
-        if (assessment.blocked()) {
+        boolean shouldBlock =
+                matches.stream()
+                        .anyMatch(match ->
+                                match.action()
+                                        == RuleAction.BLOCK
+                        );
+
+        if (shouldBlock) {
 
             String status = "BLOCKED";
 
@@ -48,8 +62,7 @@ public class SecurityPipelineService {
                     status,
                     assessment.riskScore(),
                     true,
-                    assessment.threats()
-                            .stream()
+                    threats.stream()
                             .map(SecurityThreat::type)
                             .toList()
             );
@@ -58,13 +71,16 @@ public class SecurityPipelineService {
                     true,
                     assessment.riskScore(),
                     status,
-                    assessment.threats(),
+                    threats,
                     null
             );
         }
 
         String sanitizedPrompt =
-                redactionService.redact(prompt);
+                applyRedactionRules(
+                        prompt,
+                        matches
+                );
 
         boolean redacted =
                 !sanitizedPrompt.equals(prompt);
@@ -75,7 +91,9 @@ public class SecurityPipelineService {
                         : "ALLOWED";
 
         String response =
-                aiRouterService.ask(sanitizedPrompt);
+                aiRouterService.ask(
+                        sanitizedPrompt
+                );
 
         auditService.saveLog(
                 prompt,
@@ -83,8 +101,7 @@ public class SecurityPipelineService {
                 status,
                 assessment.riskScore(),
                 false,
-                assessment.threats()
-                        .stream()
+                threats.stream()
                         .map(SecurityThreat::type)
                         .toList()
         );
@@ -93,8 +110,46 @@ public class SecurityPipelineService {
                 false,
                 assessment.riskScore(),
                 status,
-                assessment.threats(),
+                threats,
                 response
         );
+    }
+
+    private String applyRedactionRules(
+            String prompt,
+            List<RuleMatch> matches
+    ) {
+
+        String sanitizedPrompt = prompt;
+
+        for (RuleMatch match : matches) {
+
+            if (match.action()
+                    != RuleAction.REDACT) {
+                continue;
+            }
+
+            try {
+
+                sanitizedPrompt =
+                        Pattern.compile(
+                                        match.pattern(),
+                                        Pattern.CASE_INSENSITIVE
+                                )
+                                .matcher(sanitizedPrompt)
+                                .replaceAll("[REDACTED]");
+
+            } catch (PatternSyntaxException exception) {
+
+                System.err.println(
+                        "Unable to apply redaction for pattern: "
+                                + match.pattern()
+                                + ". Error: "
+                                + exception.getMessage()
+                );
+            }
+        }
+
+        return sanitizedPrompt;
     }
 }
