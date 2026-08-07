@@ -17,10 +17,13 @@ public class DynamicRuleScannerService {
 
     private final SecurityRuleRepository ruleRepository;
 
+    private final SecurityRuleService securityRuleService;
+
     public DynamicRuleScannerService(
-            SecurityRuleRepository ruleRepository
+            SecurityRuleRepository ruleRepository,SecurityRuleService securityRuleService
     ) {
         this.ruleRepository = ruleRepository;
+        this.securityRuleService = securityRuleService;
     }
 
     public List<RuleMatch> scan(String prompt) {
@@ -29,7 +32,7 @@ public class DynamicRuleScannerService {
                 new ArrayList<>();
 
         List<SecurityRuleEntity> rules =
-                ruleRepository.findByEnabled(true);
+                securityRuleService.getEnabledRules();
 
         for (SecurityRuleEntity rule : rules) {
 

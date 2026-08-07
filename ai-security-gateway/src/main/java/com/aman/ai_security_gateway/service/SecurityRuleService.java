@@ -2,6 +2,8 @@ package com.aman.ai_security_gateway.service;
 
 import com.aman.ai_security_gateway.entity.SecurityRuleEntity;
 import com.aman.ai_security_gateway.repository.SecurityRuleRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,12 @@ public class SecurityRuleService {
         this.repository = repository;
     }
 
+    @Cacheable("enabledRules")
+    public List<SecurityRuleEntity> getEnabledRules() {
+        System.out.println("Fetching enabled rules from DB...");
+        return repository.findByEnabled(true);
+    }
+
     public List<SecurityRuleEntity> getAllRules() {
 
         return repository.findAll();
@@ -26,7 +34,10 @@ public class SecurityRuleService {
 
         return findRuleOrThrow(id);
     }
-
+    @CacheEvict(
+            value = "enabledRules",
+            allEntries = true
+    )
     public SecurityRuleEntity createRule(
             SecurityRuleEntity rule
     ) {
@@ -39,7 +50,10 @@ public class SecurityRuleService {
 
         return repository.save(rule);
     }
-
+    @CacheEvict(
+            value = "enabledRules",
+            allEntries = true
+    )
     public SecurityRuleEntity updateRule(
             Long id,
             SecurityRuleEntity updatedRule
@@ -74,7 +88,10 @@ public class SecurityRuleService {
 
         return repository.save(existingRule);
     }
-
+    @CacheEvict(
+            value = "enabledRules",
+            allEntries = true
+    )
     public void deleteRule(Long id) {
 
         SecurityRuleEntity rule =
@@ -82,7 +99,10 @@ public class SecurityRuleService {
 
         repository.delete(rule);
     }
-
+    @CacheEvict(
+            value = "enabledRules",
+            allEntries = true
+    )
     public SecurityRuleEntity enableRule(Long id) {
 
         SecurityRuleEntity rule =
@@ -92,7 +112,10 @@ public class SecurityRuleService {
 
         return repository.save(rule);
     }
-
+    @CacheEvict(
+            value = "enabledRules",
+            allEntries = true
+    )
     public SecurityRuleEntity disableRule(Long id) {
 
         SecurityRuleEntity rule =
