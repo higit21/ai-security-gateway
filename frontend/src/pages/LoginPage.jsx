@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function LoginPage() {
+
+    const navigate = useNavigate();
+
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -23,7 +27,8 @@ function LoginPage() {
     localStorage.setItem("token", response.data);
 
     console.log("Login successful");
-    console.log(response.data);
+
+    navigate("/");
 
 } catch (error) {
 

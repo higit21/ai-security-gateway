@@ -6,11 +6,47 @@ import {
 
 import Sidebar from "../components/Sidebar";
 
-import DashboardPage from "../pages/DashboardPage";
-import LogsPage from "../pages/LogsPage";
-import ThreatsPage from "../pages/ThreatsPage";
-import AskAIPage from "../pages/AskAIPage";
-import LoginPage from "../pages/LoginPage";
+import DashboardPage from "./DashboardPage";
+import LogsPage from "./LogsPage";
+import ThreatsPage from "./ThreatsPage";
+import AskAIPage from "./AskAIPage";
+import LoginPage from "./LoginPage";
+
+function AppLayout() {
+    return (
+        <div className="app-layout">
+
+            <Sidebar />
+
+            <div className="main-content">
+                <Routes>
+
+                    <Route
+                        path="/"
+                        element={<DashboardPage />}
+                    />
+
+                    <Route
+                        path="/ask"
+                        element={<AskAIPage />}
+                    />
+
+                    <Route
+                        path="/logs"
+                        element={<LogsPage />}
+                    />
+
+                    <Route
+                        path="/threats"
+                        element={<ThreatsPage />}
+                    />
+
+                </Routes>
+            </div>
+
+        </div>
+    );
+}
 
 function AIPage() {
 
@@ -18,52 +54,21 @@ function AIPage() {
 
         <BrowserRouter>
 
-            <div className="app-layout">
+            <Routes>
 
-                <Sidebar />
+                {/* Login has no Sidebar */}
+                <Route
+                    path="/login"
+                    element={<LoginPage />}
+                />
 
-                <div className="main-content">
+                {/* Application layout */}
+                <Route
+                    path="/*"
+                    element={<AppLayout />}
+                />
 
-                    <Routes>
-
-                        <Route
-                            path="/login"
-                            element={<LoginPage />}
-                        />
-
-                        <Route
-                            path="/"
-                            element={
-                                <DashboardPage />
-                            }
-                        />
-
-                        <Route
-                            path="/ask"
-                            element={
-                                <AskAIPage />
-                            }
-                        />
-
-                        <Route
-                            path="/logs"
-                            element={
-                                <LogsPage />
-                            }
-                        />
-
-                        <Route
-                            path="/threats"
-                            element={
-                                <ThreatsPage />
-                            }
-                        />
-
-                    </Routes>
-
-                </div>
-
-            </div>
+            </Routes>
 
         </BrowserRouter>
     );
