@@ -10,6 +10,7 @@ import DashboardPage from "../pages/DashboardPage";
 import LogsPage from "../pages/LogsPage";
 import ThreatsPage from "../pages/ThreatsPage";
 import AskAIPage from "../pages/AskAIPage";
+import LoginPage from "../pages/LoginPage";
 
 function AIPage() {
 
@@ -24,6 +25,11 @@ function AIPage() {
                 <div className="main-content">
 
                     <Routes>
+
+                        <Route
+                            path="/login"
+                            element={<LoginPage />}
+                        />
 
                         <Route
                             path="/"
