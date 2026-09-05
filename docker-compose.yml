@@ -35,6 +35,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
     container_name: ai-security-frontend
     depends_on:
       - backend

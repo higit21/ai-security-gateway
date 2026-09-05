@@ -5,48 +5,75 @@ import {
 } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
+import ProtectedRoute from "../components/ProtectedRoute";
+import TokenExpirationHandler from "../components/TokenExpirationHandler";
 
 import DashboardPage from "./DashboardPage";
 import LogsPage from "./LogsPage";
 import ThreatsPage from "./ThreatsPage";
 import AskAIPage from "./AskAIPage";
 import LoginPage from "./LoginPage";
+import RegisterPage from "./RegisterPage";
+
 
 function AppLayout() {
+
     return (
+
         <div className="app-layout">
+            
+            <TokenExpirationHandler />
 
             <Sidebar />
 
             <div className="main-content">
+
                 <Routes>
 
                     <Route
                         path="/"
-                        element={<DashboardPage />}
+                        element={
+                            <ProtectedRoute>
+                                <DashboardPage />
+                            </ProtectedRoute>
+                        }
                     />
 
                     <Route
                         path="/ask"
-                        element={<AskAIPage />}
+                        element={
+                            <ProtectedRoute>
+                                <AskAIPage />
+                            </ProtectedRoute>
+                        }
                     />
 
                     <Route
                         path="/logs"
-                        element={<LogsPage />}
+                        element={
+                            <ProtectedRoute>
+                                <LogsPage />
+                            </ProtectedRoute>
+                        }
                     />
 
                     <Route
                         path="/threats"
-                        element={<ThreatsPage />}
+                        element={
+                            <ProtectedRoute>
+                                <ThreatsPage />
+                            </ProtectedRoute>
+                        }
                     />
 
                 </Routes>
+
             </div>
 
         </div>
     );
 }
+
 
 function AIPage() {
 
@@ -56,13 +83,21 @@ function AIPage() {
 
             <Routes>
 
-                {/* Login has no Sidebar */}
+                {/* Public routes */}
+
                 <Route
                     path="/login"
                     element={<LoginPage />}
                 />
 
-                {/* Application layout */}
+                <Route
+                    path="/register"
+                    element={<RegisterPage />}
+                />
+
+
+                {/* Protected application */}
+
                 <Route
                     path="/*"
                     element={<AppLayout />}

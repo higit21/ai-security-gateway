@@ -8,6 +8,12 @@ RUN npm install
 
 COPY . .
 
+# Build-time argument
+ARG VITE_API_URL
+
+# Make it available to Vite during build
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN npm run build
 
 
