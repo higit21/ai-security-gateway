@@ -53,7 +53,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(
                 List.of("http://localhost:5173",
                         "http://localhost:3000",
-                        "http://13.63.236.228:3000")
+                        "http://51.21.70.55:3000")
         );
 
         configuration.setAllowedMethods(
